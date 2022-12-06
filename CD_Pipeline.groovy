@@ -39,8 +39,27 @@ pipeline{
             }
         }
       }
+      stage('Deploy to development') {
+            when {
+                expression { 
+                   return params.ENVIRONMENT == 'dev'
+                }
+            }
+            steps {
+                    sh """
+                    echo "deploy to development"
+                    kubectl apply -f deployment_file.yaml
+                    kubectl apply -f service_file.yaml
+                    """
+                }
+            }
 
       stage('Deploy Application into EKS cluster'){
+        when {
+                expression { 
+                   return params.ENVIRONMENT == 'production'
+                }
+            }
         steps{
           sh  """
             kubectl apply -f deployment_file.yaml
@@ -58,6 +77,7 @@ pipeline{
               """
         }
       }
+      
       
   }//Stages Closing
 
